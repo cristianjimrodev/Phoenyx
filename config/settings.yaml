@@ -1,0 +1,37 @@
+broker:
+  name: ib  # ib or xtb
+  ib:
+    host: "127.0.0.1"
+    port: 7497            # TWS paper=7497, TWS live=7496, Gateway paper=4002, Gateway live=4001
+    client_id: 1
+  xtb:
+    mode: demo
+    urls:
+      demo: "wss://ws.xtb.com/demo"
+      demo_stream: "wss://ws.xtb.com/demoStream"
+      real: "wss://ws.xtb.com/real"
+      real_stream: "wss://ws.xtb.com/realStream"
+
+risk:
+  max_risk_per_trade: 0.02      # 2% of account per trade
+  max_daily_drawdown: 0.05      # 5% max daily loss
+  max_open_positions: 5
+  default_rr_ratio: 2.0         # risk/reward ratio
+  trailing_stop: false
+  trailing_stop_distance_atr: 1.5
+
+trading:
+  symbols:
+    - EURUSD
+    - GBPUSD
+    - AAPL
+    - MSFT
+  timeframe: H1          # M1, M5, M15, M30, H1, H4, D1, W1, MN1
+  candles_history: 500    # number of historical candles to load
+  min_confidence: 30      # minimum signal confidence (0-100) to execute
+
+logging:
+  level: INFO
+  file: logs/trading.log
+  rotation: "10 MB"
+  retention: "30 days"

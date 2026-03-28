@@ -1,0 +1,58 @@
+analysis:
+  # Priority weights (higher = more important)
+  weights:
+    support_resistance: 0.35
+    patterns: 0.30
+    indicators: 0.25
+    news: 0.10
+
+  support_resistance:
+    lookback_periods: 100
+    min_touches: 2
+    tolerance_pct: 0.001       # 0.1% price tolerance for S/R levels
+    trend_line_min_points: 3
+
+  patterns:
+    zigzag_threshold: 0.03     # 3% minimum move for zigzag
+    min_pattern_bars: 10
+    max_pattern_bars: 100
+    enabled:
+      - double_top
+      - double_bottom
+      - head_and_shoulders
+      - inverse_head_and_shoulders
+      - ascending_triangle
+      - descending_triangle
+      - symmetric_triangle
+      - bull_flag
+      - bear_flag
+      - rising_wedge
+      - falling_wedge
+
+  indicators:
+    rsi:
+      period: 14
+      overbought: 70
+      oversold: 30
+    macd:
+      fast: 12
+      slow: 26
+      signal: 9
+    moving_averages:
+      fast: 20
+      slow: 50
+      long: 200
+    bollinger:
+      period: 20
+      std_dev: 2
+    atr:
+      period: 14
+
+  news:
+    enabled: false  # Enable in Phase 4
+    sources:
+      - investing_com
+      - reuters
+      - bloomberg
+    sentiment_threshold: 0.3
+    update_interval: 300  # seconds
