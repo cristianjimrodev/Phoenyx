@@ -26,3 +26,10 @@ class Strategy(ABC):
     @abstractmethod
     async def evaluate(self, symbol: str, df: pd.DataFrame) -> TradeSignal:
         """Evaluate market data and return a trade signal."""
+
+    async def evaluate_mtf(self, symbol: str, dataframes: dict[str, pd.DataFrame]) -> TradeSignal:
+        """Multi-timeframe evaluation. Default: use first available DataFrame."""
+        if dataframes:
+            first_df = next(iter(dataframes.values()))
+            return await self.evaluate(symbol, first_df)
+        return TradeSignal(symbol, Signal.HOLD, 0, 0, 0, ["No data"])

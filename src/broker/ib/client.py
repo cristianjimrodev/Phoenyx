@@ -7,7 +7,7 @@ import time
 import pandas as pd
 from loguru import logger
 from ib_insync import (
-    IB, Contract, Forex, Stock, Future, CFD, Crypto,
+    IB, Contract, ContFuture, Forex, Stock, Future, CFD, Crypto,
     MarketOrder, LimitOrder, Trade as IBTrade,
     util,
 )
@@ -57,8 +57,15 @@ def _parse_symbol(symbol_str: str) -> Contract:
     """
     # Forex pairs (6 characters, all alpha)
     forex_pairs = {
-        "EURUSD", "GBPUSD", "USDJPY", "USDCHF", "AUDUSD",
-        "NZDUSD", "USDCAD", "EURGBP", "EURJPY", "GBPJPY",
+        # EUR pairs
+        "EURUSD", "EURGBP", "EURJPY", "EURCHF", "EURAUD",
+        "EURCAD", "EURNZD", "EURSEK", "EURNOK", "EURPLN",
+        # GBP pairs
+        "GBPUSD", "GBPJPY", "GBPCHF", "GBPAUD", "GBPCAD",
+        "GBPNZD", "GBPSEK", "GBPNOK", "GBPPLN", "GBPSGD",
+        # USD pairs
+        "USDJPY", "USDCHF", "USDCAD", "AUDUSD", "NZDUSD",
+        "USDSEK", "USDNOK", "USDPLN", "USDSGD", "USDMXN",
     }
     if symbol_str.upper() in forex_pairs:
         pair = symbol_str.upper()
@@ -81,9 +88,22 @@ def _parse_symbol(symbol_str: str) -> Contract:
         return CFD(cfd_map[symbol_str.upper()])
 
     # Futures
-    futures_set = {"ES", "NQ", "YM", "RTY", "CL", "GC", "SI", "ZB", "ZN"}
-    if symbol_str.upper() in futures_set:
-        return Future(symbol_str.upper(), exchange="GLOBEX")
+    futures_exchange = {
+        "ES": "CME", "NQ": "CME", "YM": "CBOT", "RTY": "CME",
+        "CL": "NYMEX", "GC": "COMEX", "SI": "COMEX",
+        "ZB": "CBOT", "ZN": "CBOT",
+        # Commodities / Agriculture
+        "ZW": "CBOT", "ZC": "CBOT", "ZS": "CBOT", "ZL": "CBOT",  # wheat, corn, soybeans, soy oil
+        "KC": "NYBOT", "CT": "NYBOT", "SB": "NYBOT", "CC": "NYBOT",  # coffee, cotton, sugar, cocoa
+        "HG": "COMEX", "NG": "NYMEX",  # copper, natural gas
+        # Metals
+        "PA": "NYMEX", "PL": "NYMEX",  # palladium, platinum
+        "ALI": "COMEX",  # aluminum
+        # Note: zinc, nickel not directly on CME — use LME via SMART
+    }
+    if symbol_str.upper() in futures_exchange:
+        # Use continuous futures for historical data
+        return ContFuture(symbol_str.upper(), exchange=futures_exchange[symbol_str.upper()])
 
     # Gold
     if symbol_str.upper() == "GOLD":
@@ -161,7 +181,8 @@ class IBClient(BrokerClient):
             leverage=1.0,
         )
 
-    async def get_candles(self, symbol: str, period: int | str, count: int) -> pd.DataFrame:
+    async def get_candles(self, symbol: str, period: int | str, count: int,
+                          duration: str | None = None) -> pd.DataFrame:
         contract = await self._resolve_contract(symbol)
 
         # period can be a string like "H1" or an int (minutes)
@@ -174,7 +195,8 @@ class IBClient(BrokerClient):
             timeframe = minute_map.get(period, "H1")
 
         bar_size = BAR_SIZES.get(timeframe, "1 hour")
-        duration = DURATIONS.get(timeframe, "1 M")
+        if duration is None:
+            duration = DURATIONS.get(timeframe, "1 M")
 
         bars = await self._ib.reqHistoricalDataAsync(
             contract,

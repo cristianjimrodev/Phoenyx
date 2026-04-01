@@ -49,10 +49,18 @@ analysis:
       period: 14
 
   news:
-    enabled: false  # Enable in Phase 4
+    enabled: true  # Phase 4 - keyword-based sentiment from RSS feeds
     sources:
       - investing_com
       - reuters
       - bloomberg
     sentiment_threshold: 0.3
     update_interval: 300  # seconds
+
+  multi_timeframe:
+    enabled: true
+    weights:
+      H1: 0.50
+      H4: 0.30
+      D1: 0.20
+    min_htf_agreement: 2

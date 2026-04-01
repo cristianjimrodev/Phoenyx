@@ -3,12 +3,16 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import datetime
+from typing import TYPE_CHECKING
 
 from loguru import logger
 
 from src.broker.base import BrokerClient, Side, Trade, OrderStatus
 from src.strategy.base import TradeSignal
 from src.analysis.indicators import Signal
+
+if TYPE_CHECKING:
+    from src.data.trade_store import TradeStore
 
 
 @dataclass
@@ -26,14 +30,16 @@ class OrderRecord:
     status: str = "pending"
     exit_price: float = 0.0
     pnl: float = 0.0
+    contract_size: float = 100000
 
 
 class OrderManager:
     """Executes trade signals and tracks order history."""
 
-    def __init__(self, broker: BrokerClient):
+    def __init__(self, broker: BrokerClient, trade_store: TradeStore | None = None):
         self._broker = broker
         self._history: list[OrderRecord] = []
+        self._trade_store = trade_store
 
     async def execute_signal(self, signal: TradeSignal, volume: float,
                              sl: float, tp: float) -> Trade | None:
@@ -68,6 +74,8 @@ class OrderManager:
             record.entry_price = trade.open_price
             record.status = "opened"
             self._history.append(record)
+            if self._trade_store:
+                self._trade_store.save_order(record)
 
             logger.info(
                 f"ORDER EXECUTED: {side.value} {volume} {signal.symbol} "
@@ -79,6 +87,8 @@ class OrderManager:
         except Exception as e:
             record.status = "error"
             self._history.append(record)
+            if self._trade_store:
+                self._trade_store.save_order(record)
             logger.error(f"Order execution failed: {e}")
             return None
 

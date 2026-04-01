@@ -30,6 +30,7 @@ class TechnicalStrategy(Strategy):
         self._pattern_config = config.get("patterns", {})
         self._indicator_config = config.get("indicators", {})
         self._news_config = config.get("news", {})
+        self._mtf_config = config.get("multi_timeframe", {})
 
     async def evaluate(self, symbol: str, df: pd.DataFrame) -> TradeSignal:
         if df.empty or len(df) < 50:
@@ -149,3 +150,69 @@ class TechnicalStrategy(Strategy):
             sl, tp = 0.0, 0.0
 
         return round(sl, 5), round(tp, 5)
+
+    async def evaluate_mtf(self, symbol: str, dataframes: dict[str, pd.DataFrame]) -> TradeSignal:
+        """Evaluate signal across multiple timeframes with weighted consensus.
+
+        Args:
+            symbol: Trading symbol.
+            dataframes: Dict mapping timeframe strings (e.g. "H1","H4","D1") to DataFrames.
+        """
+        if not dataframes:
+            return TradeSignal(symbol, Signal.HOLD, 0, 0, 0, ["No timeframe data"])
+
+        mtf_config = self._mtf_config
+        tf_weights = mtf_config.get("weights", {"H1": 0.50, "H4": 0.30, "D1": 0.20})
+        min_htf_agreement = mtf_config.get("min_htf_agreement", 1)
+
+        signals: dict[str, TradeSignal] = {}
+        primary_tf = None
+
+        for tf, df in dataframes.items():
+            if primary_tf is None:
+                primary_tf = tf
+            sig = await self.evaluate(symbol, df)
+            signals[tf] = sig
+
+        if not signals or primary_tf not in signals:
+            return TradeSignal(symbol, Signal.HOLD, 0, 0, 0, ["MTF: no primary signal"])
+
+        primary = signals[primary_tf]
+        if primary.signal == Signal.HOLD:
+            return primary
+
+        # Count higher-timeframe agreement
+        htf_signals = {tf: sig for tf, sig in signals.items() if tf != primary_tf}
+        agreeing = sum(1 for sig in htf_signals.values() if sig.signal == primary.signal)
+        disagreeing = sum(1 for sig in htf_signals.values()
+                          if sig.signal != Signal.HOLD and sig.signal != primary.signal)
+
+        if agreeing < min_htf_agreement and len(htf_signals) > 0:
+            details = primary.details + [f"[MTF] Filtered: only {agreeing}/{len(htf_signals)} HTFs agree"]
+            return TradeSignal(symbol, Signal.HOLD, 0, 0, 0, details)
+
+        # Weighted confidence
+        weighted_conf = 0.0
+        total_weight = 0.0
+        for tf, sig in signals.items():
+            w = tf_weights.get(tf, 0.1)
+            if sig.signal == primary.signal:
+                weighted_conf += sig.confidence * w
+            elif sig.signal == Signal.HOLD:
+                weighted_conf += sig.confidence * w * 0.3
+            # disagreeing signals reduce confidence
+            total_weight += w
+
+        final_confidence = min(100, weighted_conf / total_weight) if total_weight > 0 else primary.confidence
+
+        mtf_details = [f"[MTF] {tf}: {sig.signal.value} ({sig.confidence:.0f}%)" for tf, sig in signals.items()]
+        all_details = primary.details + mtf_details
+
+        return TradeSignal(
+            symbol=symbol,
+            signal=primary.signal,
+            confidence=final_confidence,
+            suggested_sl=primary.suggested_sl,
+            suggested_tp=primary.suggested_tp,
+            details=all_details,
+        )

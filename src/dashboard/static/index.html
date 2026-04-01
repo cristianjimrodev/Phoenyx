@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Phoenyx Trading Dashboard</title>
+<style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        background: #f5f5f5; color: #333;
+    }
+    header {
+        background: #1a237e; color: white; padding: 16px 24px;
+        display: flex; align-items: center; justify-content: space-between;
+    }
+    header h1 { font-size: 22px; font-weight: 700; letter-spacing: 0.5px; }
+    #ws-status {
+        font-size: 13px; display: flex; align-items: center; gap: 6px;
+    }
+    #ws-status .dot {
+        width: 10px; height: 10px; border-radius: 50%;
+        background: #F44336; display: inline-block;
+    }
+    #ws-status.connected .dot { background: #4CAF50; }
+    .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+
+    /* Summary cards */
+    .cards {
+        display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px; margin-bottom: 24px;
+    }
+    .card {
+        background: white; border-radius: 8px; padding: 20px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1); text-align: center;
+    }
+    .card .label {
+        font-size: 12px; color: #666; text-transform: uppercase;
+        letter-spacing: 0.5px; margin-bottom: 6px;
+    }
+    .card .value { font-size: 28px; font-weight: 700; }
+    .positive { color: #4CAF50; }
+    .negative { color: #F44336; }
+
+    /* Section headings */
+    h2 {
+        color: #1a237e; font-size: 18px; margin: 24px 0 12px;
+        border-bottom: 2px solid #1a237e; padding-bottom: 6px;
+    }
+
+    /* Tables */
+    .table-wrap {
+        background: white; border-radius: 8px; overflow: hidden;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1); margin-bottom: 24px;
+    }
+    table { width: 100%; border-collapse: collapse; }
+    th {
+        background: #1a237e; color: white; padding: 12px 10px;
+        font-size: 13px; text-align: left; white-space: nowrap;
+    }
+    td {
+        padding: 10px; border-bottom: 1px solid #eee; font-size: 13px;
+    }
+    tbody tr:hover { background: #f9f9f9; }
+    .empty-msg {
+        padding: 24px; text-align: center; color: #999; font-size: 14px;
+    }
+
+    /* System bar */
+    .system-bar {
+        display: flex; gap: 24px; font-size: 12px; color: #666;
+        padding: 8px 0; margin-top: 12px; justify-content: center;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .cards { grid-template-columns: repeat(2, 1fr); }
+        .container { padding: 12px; }
+        header h1 { font-size: 18px; }
+    }
+</style>
+</head>
+<body>
+
+<header>
+    <h1>Phoenyx Trading Dashboard</h1>
+    <div id="ws-status"><span class="dot"></span> <span id="ws-label">Disconnected</span></div>
+</header>
+
+<div class="container">
+
+    <!-- Account summary cards -->
+    <div class="cards">
+        <div class="card">
+            <div class="label">Balance</div>
+            <div class="value" id="card-balance">--</div>
+        </div>
+        <div class="card">
+            <div class="label">Equity</div>
+            <div class="value" id="card-equity">--</div>
+        </div>
+        <div class="card">
+            <div class="label">Free Margin</div>
+            <div class="value" id="card-free-margin">--</div>
+        </div>
+        <div class="card">
+            <div class="label">Open Positions</div>
+            <div class="value" id="card-positions">0</div>
+        </div>
+    </div>
+
+    <!-- Open Positions -->
+    <h2>Open Positions</h2>
+    <div class="table-wrap">
+        <table id="positions-table">
+            <thead>
+                <tr>
+                    <th>Symbol</th><th>Side</th><th>Volume</th>
+                    <th>Open Price</th><th>SL</th><th>TP</th>
+                    <th>Margin (EUR)</th><th>Margin %</th><th>Profit</th>
+                </tr>
+            </thead>
+            <tbody id="positions-body">
+                <tr><td colspan="9" class="empty-msg">No open positions</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Latest Signals -->
+    <h2>Latest Signals</h2>
+    <div class="table-wrap">
+        <table id="signals-table">
+            <thead>
+                <tr>
+                    <th>Symbol</th><th>Signal</th><th>Confidence</th>
+                    <th>SL</th><th>TP</th><th>Updated</th>
+                </tr>
+            </thead>
+            <tbody id="signals-body">
+                <tr><td colspan="6" class="empty-msg">No signals yet</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Latest Prices -->
+    <h2>Latest Prices</h2>
+    <div class="table-wrap">
+        <table id="prices-table">
+            <thead>
+                <tr>
+                    <th>Symbol</th><th>Bid</th><th>Ask</th><th>Spread</th>
+                </tr>
+            </thead>
+            <tbody id="prices-body">
+                <tr><td colspan="4" class="empty-msg">No price data</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- System info -->
+    <div class="system-bar">
+        <span>System: <strong id="sys-status">--</strong></span>
+        <span>Started: <strong id="sys-started">--</strong></span>
+        <span>Last update: <strong id="last-update">--</strong></span>
+    </div>
+</div>
+
+<script>
+(function () {
+    "use strict";
+
+    /* ---- Helpers ---- */
+    function fmt(n, decimals) {
+        if (n == null || isNaN(n)) return "--";
+        decimals = decimals != null ? decimals : 2;
+        return Number(n).toLocaleString(undefined, {
+            minimumFractionDigits: decimals,
+            maximumFractionDigits: decimals
+        });
+    }
+    function profitClass(v) { return v > 0 ? "positive" : v < 0 ? "negative" : ""; }
+    function shortTime(iso) {
+        if (!iso) return "--";
+        var d = new Date(iso);
+        return d.toLocaleTimeString();
+    }
+
+    /* ---- DOM refs ---- */
+    var $balance     = document.getElementById("card-balance");
+    var $equity      = document.getElementById("card-equity");
+    var $freeMargin  = document.getElementById("card-free-margin");
+    var $posCount    = document.getElementById("card-positions");
+    var $posBody     = document.getElementById("positions-body");
+    var $sigBody     = document.getElementById("signals-body");
+    var $priceBody   = document.getElementById("prices-body");
+    var $sysStatus   = document.getElementById("sys-status");
+    var $sysStarted  = document.getElementById("sys-started");
+    var $lastUpdate  = document.getElementById("last-update");
+    var $wsStatus    = document.getElementById("ws-status");
+    var $wsLabel     = document.getElementById("ws-label");
+
+    /* ---- State ---- */
+    var signals = {};
+    var prices  = {};
+
+    /* ---- Render functions ---- */
+    function renderAccount(acc) {
+        if (!acc || !acc.balance) return;
+        $balance.textContent    = fmt(acc.balance);
+        $equity.textContent     = fmt(acc.equity);
+        $freeMargin.textContent = fmt(acc.free_margin);
+    }
+
+    function renderPositions(list) {
+        $posCount.textContent = list ? list.length : 0;
+        if (!list || list.length === 0) {
+            $posBody.innerHTML = '<tr><td colspan="9" class="empty-msg">No open positions</td></tr>';
+            return;
+        }
+        var equity = parseFloat($equity.textContent.replace(/[^0-9.\-]/g, "")) || 0;
+        var html = "";
+        for (var i = 0; i < list.length; i++) {
+            var p = list[i];
+            var cs = p.contract_size || 100000;
+            var marginEur = (p.volume || 0) * (p.open_price || 0) * cs / 100;
+            var marginPct = equity > 0 ? (marginEur / equity * 100) : 0;
+            html += "<tr>"
+                + "<td>" + (p.symbol || "") + "</td>"
+                + "<td>" + (p.side || "").toUpperCase() + "</td>"
+                + "<td>" + fmt(p.volume) + "</td>"
+                + "<td>" + fmt(p.open_price, 5) + "</td>"
+                + "<td>" + fmt(p.sl, 5) + "</td>"
+                + "<td>" + fmt(p.tp, 5) + "</td>"
+                + "<td>" + fmt(marginEur) + "</td>"
+                + "<td>" + fmt(marginPct, 1) + "%</td>"
+                + '<td class="' + profitClass(p.profit) + '">' + fmt(p.profit) + "</td>"
+                + "</tr>";
+        }
+        $posBody.innerHTML = html;
+    }
+
+    function renderSignals() {
+        var keys = Object.keys(signals);
+        if (keys.length === 0) {
+            $sigBody.innerHTML = '<tr><td colspan="6" class="empty-msg">No signals yet</td></tr>';
+            return;
+        }
+        var html = "";
+        for (var i = 0; i < keys.length; i++) {
+            var sym = keys[i];
+            var s = signals[sym];
+            html += "<tr>"
+                + "<td>" + sym + "</td>"
+                + "<td><strong>" + (s.signal || s.direction || "--") + "</strong></td>"
+                + "<td>" + fmt(s.confidence, 0) + "%</td>"
+                + "<td>" + fmt(s.suggested_sl, 5) + "</td>"
+                + "<td>" + fmt(s.suggested_tp, 5) + "</td>"
+                + "<td>" + shortTime(s.updated) + "</td>"
+                + "</tr>";
+        }
+        $sigBody.innerHTML = html;
+    }
+
+    function renderPrices() {
+        var keys = Object.keys(prices);
+        if (keys.length === 0) {
+            $priceBody.innerHTML = '<tr><td colspan="4" class="empty-msg">No price data</td></tr>';
+            return;
+        }
+        var html = "";
+        for (var i = 0; i < keys.length; i++) {
+            var sym = keys[i];
+            var p = prices[sym];
+            html += "<tr>"
+                + "<td>" + sym + "</td>"
+                + "<td>" + fmt(p.bid, 5) + "</td>"
+                + "<td>" + fmt(p.ask, 5) + "</td>"
+                + "<td>" + fmt(p.spread, 1) + "</td>"
+                + "</tr>";
+        }
+        $priceBody.innerHTML = html;
+    }
+
+    function renderSystem(sys) {
+        if (!sys) return;
+        $sysStatus.textContent  = sys.status || "--";
+        $sysStarted.textContent = shortTime(sys.started);
+    }
+
+    function updateTimestamp(ts) {
+        $lastUpdate.textContent = shortTime(ts);
+    }
+
+    /* ---- WebSocket ---- */
+    var ws = null;
+    var reconnectDelay = 1000;
+    var maxReconnectDelay = 30000;
+
+    function connectWS() {
+        var proto = location.protocol === "https:" ? "wss:" : "ws:";
+        var url = proto + "//" + location.host + "/ws";
+
+        ws = new WebSocket(url);
+
+        ws.onopen = function () {
+            $wsStatus.className = "connected";
+            $wsLabel.textContent = "Connected";
+            reconnectDelay = 1000;
+        };
+
+        ws.onclose = function () {
+            $wsStatus.className = "";
+            $wsLabel.textContent = "Disconnected";
+            scheduleReconnect();
+        };
+
+        ws.onerror = function () {
+            ws.close();
+        };
+
+        ws.onmessage = function (evt) {
+            var msg;
+            try { msg = JSON.parse(evt.data); } catch (e) { return; }
+
+            if (msg.ts) updateTimestamp(msg.ts);
+
+            switch (msg.type) {
+                case "init":
+                    renderAccount(msg.data.account);
+                    renderPositions(msg.data.positions);
+                    signals = msg.data.signals || {};
+                    prices  = msg.data.prices  || {};
+                    renderSignals();
+                    renderPrices();
+                    renderSystem(msg.data.system);
+                    break;
+                case "account":
+                    renderAccount(msg.data);
+                    break;
+                case "positions":
+                    renderPositions(msg.data.positions);
+                    break;
+                case "signal":
+                    var sym = msg.data.symbol;
+                    signals[sym] = msg.data;
+                    renderSignals();
+                    break;
+                case "price":
+                    var psym = msg.data.symbol;
+                    prices[psym] = msg.data;
+                    renderPrices();
+                    break;
+            }
+        };
+    }
+
+    function scheduleReconnect() {
+        setTimeout(function () {
+            connectWS();
+            reconnectDelay = Math.min(reconnectDelay * 2, maxReconnectDelay);
+        }, reconnectDelay);
+    }
+
+    connectWS();
+})();
+</script>
+</body>
+</html>

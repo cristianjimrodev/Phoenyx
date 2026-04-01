@@ -33,6 +33,13 @@ class DataFeed:
 
         return df
 
+    async def get_multi_timeframe_candles(self, symbol: str, timeframes: list[str], count: int = 500) -> dict[str, pd.DataFrame]:
+        """Fetch candles for multiple timeframes in parallel."""
+        import asyncio
+        tasks = {tf: self.get_candles(symbol, tf, count) for tf in timeframes}
+        results = await asyncio.gather(*tasks.values())
+        return dict(zip(tasks.keys(), results))
+
     async def subscribe(self, symbol: str) -> None:
         async def on_tick(tick: TickPrice) -> None:
             self._live_prices[symbol] = tick

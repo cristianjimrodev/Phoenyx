@@ -10,6 +10,7 @@ import yaml
 from loguru import logger
 
 from src.strategy.technical import TechnicalStrategy
+from src.reporting.report import generate_backtest_report
 from backtest.engine import BacktestEngine
 
 
@@ -133,6 +134,12 @@ async def run_backtest(symbol: str, bars: int, initial_balance: float,
         for t in result.trades[-10:]:
             print(f"  {t.side:<6} {t.entry_price:>10.5f} {t.exit_price:>10.5f} "
                   f"${t.pnl:>+8.2f}  {t.reason}")
+
+    # Generate HTML report
+    report_path = generate_backtest_report(
+        result, output_path=f"reports/backtest_{symbol}.html",
+    )
+    print(f"\n  HTML report: {report_path}")
 
     return result
 

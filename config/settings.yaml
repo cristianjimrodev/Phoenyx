@@ -1,5 +1,9 @@
 broker:
-  name: ib  # ib or xtb
+  name: ib  # ib, xtb, or paper
+  paper:
+    data_broker: ib          # underlying broker for market data (ib or xtb)
+    initial_balance: 10000
+    currency: USD
   ib:
     host: "127.0.0.1"
     port: 7497            # TWS paper=7497, TWS live=7496, Gateway paper=4002, Gateway live=4001
@@ -13,12 +17,19 @@ broker:
       real_stream: "wss://ws.xtb.com/realStream"
 
 risk:
-  max_risk_per_trade: 0.02      # 2% of account per trade
+  max_risk_per_trade: 0.05      # 5% of account per trade (~5% loss at SL, ~10% gain at TP with 2:1 R:R)
   max_daily_drawdown: 0.05      # 5% max daily loss
   max_open_positions: 5
   default_rr_ratio: 2.0         # risk/reward ratio
-  trailing_stop: false
+  trailing_stop: true
   trailing_stop_distance_atr: 1.5
+  portfolio:
+    enabled: true
+    correlation_lookback: 100
+    correlation_threshold: 0.70
+    max_correlated_exposure: 0.04
+    max_sector_positions: 3
+    update_interval: 3600
 
 trading:
   symbols:
@@ -27,8 +38,25 @@ trading:
     - AAPL
     - MSFT
   timeframe: H1          # M1, M5, M15, M30, H1, H4, D1, W1, MN1
+  confirmation_timeframes:
+    - H4
+    - D1
   candles_history: 500    # number of historical candles to load
-  min_confidence: 30      # minimum signal confidence (0-100) to execute
+  min_confidence: 75      # minimum signal confidence (0-100) to execute
+
+notifications:
+  enabled: true
+  telegram:
+    enabled: false
+    events: [trade_opened, trade_closed, risk_blocked, error]
+  discord:
+    enabled: false
+    events: [trade_opened, trade_closed]
+
+dashboard:
+  enabled: true
+  host: "127.0.0.1"
+  port: 8080
 
 logging:
   level: INFO

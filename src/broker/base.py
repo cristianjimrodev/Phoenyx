@@ -70,6 +70,7 @@ class Trade:
     close_price: float = 0.0
     close_time: int = 0
     status: OrderStatus = OrderStatus.OPENED
+    contract_size: float = 100000
 
 
 @dataclass

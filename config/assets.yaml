@@ -1,0 +1,702 @@
+# Per-asset parameter sets for TopDownStrategy.
+# Each asset can override any parameter. Unlisted params fall back to "default".
+
+default:
+  timeframes:
+    trend: W1           # global trend
+    confirmation: D1    # intermediate confirmation
+    entry: H4           # entry/exit signals
+  trend_durations:
+    W1: "10 Y"
+    D1: "1 Y"
+    H4: "10 M"
+  rsi:
+    period: 14
+    oversold: 35
+    overbought: 65
+    deep_oversold: 25
+    deep_overbought: 75
+  stochastic:
+    k_period: 5
+    d_period: 3
+    smooth: 3
+    oversold: 25
+    overbought: 75
+  atr:
+    period: 14
+    sl_multiplier: 1.5
+    tp_multiplier: 3.0   # 2:1 R:R
+  min_confidence: 80
+
+# ──────────── Forex ────────────
+
+EURUSD:
+  sr_bounce_entry: false   # S/R bounce generates noise on EURUSD
+  divergence_entry: false  # pure RSI/Stoch works better
+  rsi:
+    oversold: 35
+    overbought: 65
+    deep_oversold: 25
+    deep_overbought: 75
+  stochastic:
+    oversold: 25
+    overbought: 75
+  atr:
+    sl_multiplier: 1.5
+    tp_multiplier: 3.0
+  min_confidence: 80
+
+EURCHF:  # CHF pairs: SNB interventions, erratic
+  sr_bounce_entry: false
+  divergence_entry: false
+  rsi: { oversold: 30, overbought: 70, deep_oversold: 20, deep_overbought: 80 }
+  stochastic: { oversold: 20, overbought: 80 }
+  atr: { sl_multiplier: 2.0, tp_multiplier: 4.0 }
+  min_confidence: 90
+
+GBPCHF:
+  sr_bounce_entry: false
+  divergence_entry: false
+  rsi: { oversold: 30, overbought: 70, deep_oversold: 20, deep_overbought: 80 }
+  stochastic: { oversold: 20, overbought: 80 }
+  atr: { sl_multiplier: 2.0, tp_multiplier: 4.0 }
+  min_confidence: 90
+
+USDCHF:
+  sr_bounce_entry: false
+  divergence_entry: false
+  rsi: { oversold: 30, overbought: 70, deep_oversold: 20, deep_overbought: 80 }
+  stochastic: { oversold: 20, overbought: 80 }
+  atr: { sl_multiplier: 2.0, tp_multiplier: 4.0 }
+  min_confidence: 90
+
+GBPJPY:  # High volatility, works well with lower confidence
+  min_confidence: 75
+
+GBPAUD:  # Chronic loser - exclude
+  excluded: true
+
+GBPSEK:  # Chronic loser - exclude
+  excluded: true
+
+NZDUSD:  # Chronic loser - exclude
+  excluded: true
+
+GBPUSD:
+  rsi:
+    oversold: 33
+    overbought: 67
+    deep_oversold: 23
+    deep_overbought: 77
+  stochastic:
+    oversold: 23
+    overbought: 77
+  atr:
+    sl_multiplier: 1.8     # GBP more volatile
+    tp_multiplier: 3.6
+
+USDJPY:
+  rsi:
+    oversold: 35
+    overbought: 65
+    deep_oversold: 25
+    deep_overbought: 75
+  stochastic:
+    oversold: 25
+    overbought: 75
+  atr:
+    sl_multiplier: 1.5
+    tp_multiplier: 3.0
+
+EURGBP:
+  rsi:
+    oversold: 35
+    overbought: 65
+  stochastic:
+    oversold: 25
+    overbought: 75
+  atr:
+    sl_multiplier: 1.5
+    tp_multiplier: 3.0
+
+# ──────────── Forex exotics (wider spreads, more volatile) ────────────
+
+EURSEK:
+  rsi: { oversold: 33, overbought: 67, deep_oversold: 25, deep_overbought: 75 }
+  stochastic: { oversold: 25, overbought: 75 }
+  atr: { sl_multiplier: 2.0, tp_multiplier: 4.0 }
+  min_confidence: 80
+
+EURNOK:
+  rsi: { oversold: 33, overbought: 67, deep_oversold: 25, deep_overbought: 75 }
+  stochastic: { oversold: 25, overbought: 75 }
+  atr: { sl_multiplier: 2.0, tp_multiplier: 4.0 }
+  min_confidence: 80
+
+EURPLN:
+  rsi: { oversold: 33, overbought: 67, deep_oversold: 25, deep_overbought: 75 }
+  stochastic: { oversold: 25, overbought: 75 }
+  atr: { sl_multiplier: 2.0, tp_multiplier: 4.0 }
+  min_confidence: 80
+
+GBPSEK:
+  rsi: { oversold: 33, overbought: 67, deep_oversold: 25, deep_overbought: 75 }
+  stochastic: { oversold: 25, overbought: 75 }
+  atr: { sl_multiplier: 2.0, tp_multiplier: 4.0 }
+  min_confidence: 80
+
+GBPNOK:
+  rsi: { oversold: 33, overbought: 67, deep_oversold: 25, deep_overbought: 75 }
+  stochastic: { oversold: 25, overbought: 75 }
+  atr: { sl_multiplier: 2.0, tp_multiplier: 4.0 }
+  min_confidence: 80
+
+GBPPLN:
+  rsi: { oversold: 33, overbought: 67, deep_oversold: 25, deep_overbought: 75 }
+  stochastic: { oversold: 25, overbought: 75 }
+  atr: { sl_multiplier: 2.0, tp_multiplier: 4.0 }
+  min_confidence: 80
+
+GBPSGD:
+  rsi: { oversold: 33, overbought: 67, deep_oversold: 25, deep_overbought: 75 }
+  stochastic: { oversold: 25, overbought: 75 }
+  atr: { sl_multiplier: 2.0, tp_multiplier: 4.0 }
+  min_confidence: 80
+
+USDSEK:
+  rsi: { oversold: 33, overbought: 67, deep_oversold: 25, deep_overbought: 75 }
+  stochastic: { oversold: 25, overbought: 75 }
+  atr: { sl_multiplier: 2.0, tp_multiplier: 4.0 }
+  min_confidence: 80
+
+USDNOK:
+  rsi: { oversold: 33, overbought: 67, deep_oversold: 25, deep_overbought: 75 }
+  stochastic: { oversold: 25, overbought: 75 }
+  atr: { sl_multiplier: 2.0, tp_multiplier: 4.0 }
+  min_confidence: 80
+
+USDPLN:
+  rsi: { oversold: 33, overbought: 67, deep_oversold: 25, deep_overbought: 75 }
+  stochastic: { oversold: 25, overbought: 75 }
+  atr: { sl_multiplier: 2.0, tp_multiplier: 4.0 }
+  min_confidence: 80
+
+USDSGD:
+  rsi: { oversold: 33, overbought: 67, deep_oversold: 25, deep_overbought: 75 }
+  stochastic: { oversold: 25, overbought: 75 }
+  atr: { sl_multiplier: 2.0, tp_multiplier: 4.0 }
+  min_confidence: 80
+
+USDMXN:
+  rsi: { oversold: 33, overbought: 67, deep_oversold: 25, deep_overbought: 75 }
+  stochastic: { oversold: 25, overbought: 75 }
+  atr: { sl_multiplier: 2.5, tp_multiplier: 5.0 }
+  min_confidence: 80
+
+# ──────────── Indices / ETFs ────────────
+
+QQQ:
+  timeframes:
+    trend: W1
+    confirmation: D1
+    entry: H4
+  trend_durations:
+    W1: "10 Y"
+    D1: "1 Y"
+    H4: "10 M"
+  rsi:
+    oversold: 30         # indices trend harder, need deeper extremes
+    overbought: 70
+    deep_oversold: 20
+    deep_overbought: 80
+  stochastic:
+    k_period: 5
+    d_period: 3
+    smooth: 3
+    oversold: 20
+    overbought: 80
+  atr:
+    sl_multiplier: 2.0   # wider stops for indices
+    tp_multiplier: 4.0
+  min_confidence: 80
+
+SPY:
+  timeframes:
+    trend: W1
+    confirmation: D1
+    entry: D1
+  rsi:
+    oversold: 30
+    overbought: 70
+    deep_oversold: 20
+    deep_overbought: 80
+  stochastic:
+    oversold: 20
+    overbought: 80
+  atr:
+    sl_multiplier: 2.0
+    tp_multiplier: 4.0
+  min_confidence: 80
+
+AAPL:
+  timeframes:
+    entry: D1
+  rsi:
+    oversold: 30
+    overbought: 70
+    deep_oversold: 20
+    deep_overbought: 80
+  stochastic:
+    oversold: 20
+    overbought: 80
+  atr:
+    sl_multiplier: 2.0
+    tp_multiplier: 4.0
+  min_confidence: 80
+
+MSFT:
+  timeframes:
+    entry: D1
+  rsi:
+    oversold: 30
+    overbought: 70
+    deep_oversold: 20
+    deep_overbought: 80
+  stochastic:
+    oversold: 20
+    overbought: 80
+  atr:
+    sl_multiplier: 2.0
+    tp_multiplier: 4.0
+  min_confidence: 80
+
+SPY:  # S&P 500 ETF - long bias
+  long_only: true
+  rsi:
+    oversold: 35
+    overbought: 65
+    deep_oversold: 28
+    deep_overbought: 72
+  stochastic:
+    oversold: 28
+    overbought: 72
+  atr:
+    sl_multiplier: 2.2
+    tp_multiplier: 4.4
+  min_confidence: 80
+
+IWM:  # Russell 2000 ETF - small caps, very volatile, long bias
+  long_only: true           # equity indices have structural upward bias
+  rsi:
+    oversold: 38
+    overbought: 62
+    deep_oversold: 30
+    deep_overbought: 70
+  stochastic:
+    oversold: 30
+    overbought: 70
+  atr:
+    sl_multiplier: 2.5
+    tp_multiplier: 5.0
+  min_confidence: 80
+
+DIA:  # Dow Jones ETF - long bias
+  long_only: true
+  rsi:
+    oversold: 38
+    overbought: 62
+    deep_oversold: 30
+    deep_overbought: 70
+  stochastic:
+    oversold: 30
+    overbought: 70
+  atr:
+    sl_multiplier: 2.5
+    tp_multiplier: 5.0
+  min_confidence: 80
+
+EWP:  # IBEX 35 (Spain ETF)
+  rsi:
+    oversold: 32
+    overbought: 68
+    deep_oversold: 22
+    deep_overbought: 78
+  stochastic:
+    oversold: 22
+    overbought: 78
+  atr:
+    sl_multiplier: 2.0
+    tp_multiplier: 4.0
+  min_confidence: 80
+
+EWU:  # FTSE 100 (UK ETF)
+  rsi:
+    oversold: 32
+    overbought: 68
+    deep_oversold: 22
+    deep_overbought: 78
+  stochastic:
+    oversold: 22
+    overbought: 78
+  atr:
+    sl_multiplier: 2.0
+    tp_multiplier: 4.0
+  min_confidence: 80
+
+EWQ:  # CAC 40 (France ETF)
+  rsi:
+    oversold: 32
+    overbought: 68
+    deep_oversold: 22
+    deep_overbought: 78
+  stochastic:
+    oversold: 22
+    overbought: 78
+  atr:
+    sl_multiplier: 2.0
+    tp_multiplier: 4.0
+  min_confidence: 80
+
+EWI:  # FTSE MIB (Italy ETF)
+  rsi:
+    oversold: 32
+    overbought: 68
+    deep_oversold: 22
+    deep_overbought: 78
+  stochastic:
+    oversold: 22
+    overbought: 78
+  atr:
+    sl_multiplier: 2.0
+    tp_multiplier: 4.0
+  min_confidence: 80
+
+FEZ:  # Euro Stoxx 50 ETF
+  rsi:
+    oversold: 32
+    overbought: 68
+    deep_oversold: 22
+    deep_overbought: 78
+  stochastic:
+    oversold: 22
+    overbought: 78
+  atr:
+    sl_multiplier: 2.0
+    tp_multiplier: 4.0
+  min_confidence: 80
+
+VIXY: # VIX ETF - chronic loser, exclude
+  excluded: true
+  rsi:
+    oversold: 35
+    overbought: 65
+    deep_oversold: 25
+    deep_overbought: 75
+  stochastic:
+    oversold: 25
+    overbought: 75
+  atr:
+    sl_multiplier: 3.0
+    tp_multiplier: 6.0
+  min_confidence: 80
+
+DAX:  # German DAX 40 index (CFD)
+  rsi:
+    oversold: 30
+    overbought: 70
+    deep_oversold: 20
+    deep_overbought: 80
+  stochastic:
+    oversold: 20
+    overbought: 80
+  atr:
+    sl_multiplier: 2.0
+    tp_multiplier: 4.0
+  min_confidence: 80
+
+# ──────────── International Indices (ETFs) ────────────
+
+EWW:  # Mexico IPC Composite (ETF)
+  long_only: true
+  rsi: { oversold: 33, overbought: 67, deep_oversold: 25, deep_overbought: 75 }
+  stochastic: { oversold: 25, overbought: 75 }
+  atr: { sl_multiplier: 2.5, tp_multiplier: 5.0 }
+  min_confidence: 80
+
+EWZ:  # Brazil Bovespa Composite (ETF)
+  rsi: { oversold: 33, overbought: 67, deep_oversold: 25, deep_overbought: 75 }
+  stochastic: { oversold: 25, overbought: 75 }
+  atr: { sl_multiplier: 2.5, tp_multiplier: 5.0 }
+  min_confidence: 80
+
+EWJ:  # Nikkei / Japan (ETF)
+  long_only: true
+  rsi: { oversold: 32, overbought: 68, deep_oversold: 22, deep_overbought: 78 }
+  stochastic: { oversold: 22, overbought: 78 }
+  atr: { sl_multiplier: 2.0, tp_multiplier: 4.0 }
+  min_confidence: 80
+
+VNM:  # Vietnam Index (ETF)
+  rsi: { oversold: 33, overbought: 67, deep_oversold: 25, deep_overbought: 75 }
+  stochastic: { oversold: 25, overbought: 75 }
+  atr: { sl_multiplier: 2.5, tp_multiplier: 5.0 }
+  min_confidence: 80
+
+EWH:  # Hang Seng / Hong Kong (ETF)
+  rsi: { oversold: 33, overbought: 67, deep_oversold: 25, deep_overbought: 75 }
+  stochastic: { oversold: 25, overbought: 75 }
+  atr: { sl_multiplier: 2.0, tp_multiplier: 4.0 }
+  min_confidence: 80
+
+# ──────────── Additional Commodities ────────────
+
+SB:   # Sugar futures (NYBOT)
+  trend_durations: { W1: "5 Y", D1: "1 Y", H4: "10 M" }
+  rsi: { oversold: 30, overbought: 70, deep_oversold: 22, deep_overbought: 78 }
+  stochastic: { oversold: 22, overbought: 78 }
+  atr: { sl_multiplier: 2.0, tp_multiplier: 4.0 }
+  min_confidence: 80
+
+CT:   # Cotton futures (NYBOT)
+  trend_durations: { W1: "5 Y", D1: "1 Y", H4: "10 M" }
+  rsi: { oversold: 30, overbought: 70, deep_oversold: 22, deep_overbought: 78 }
+  stochastic: { oversold: 22, overbought: 78 }
+  atr: { sl_multiplier: 2.0, tp_multiplier: 4.0 }
+  min_confidence: 80
+
+CC:   # Cocoa futures (NYBOT)
+  trend_durations: { W1: "5 Y", D1: "1 Y", H4: "10 M" }
+  rsi: { oversold: 30, overbought: 70, deep_oversold: 22, deep_overbought: 78 }
+  stochastic: { oversold: 22, overbought: 78 }
+  atr: { sl_multiplier: 2.5, tp_multiplier: 5.0 }
+  min_confidence: 80
+
+ZL:   # Soybean Oil futures (CBOT)
+  trend_durations: { W1: "5 Y", D1: "1 Y", H4: "10 M" }
+  rsi: { oversold: 30, overbought: 70, deep_oversold: 22, deep_overbought: 78 }
+  stochastic: { oversold: 22, overbought: 78 }
+  atr: { sl_multiplier: 2.0, tp_multiplier: 4.0 }
+  min_confidence: 80
+
+PA:   # Palladium - chronic loser, exclude
+  excluded: true
+  trend_durations: { W1: "5 Y", D1: "1 Y", H4: "10 M" }
+  rsi: { oversold: 30, overbought: 70, deep_oversold: 22, deep_overbought: 78 }
+  stochastic: { oversold: 22, overbought: 78 }
+  atr: { sl_multiplier: 3.0, tp_multiplier: 6.0 }
+  min_confidence: 80
+
+PL:   # Platinum - chronic loser, exclude
+  excluded: true
+  trend_durations: { W1: "5 Y", D1: "1 Y", H4: "10 M" }
+  rsi: { oversold: 30, overbought: 70, deep_oversold: 22, deep_overbought: 78 }
+  stochastic: { oversold: 22, overbought: 78 }
+  atr: { sl_multiplier: 2.5, tp_multiplier: 5.0 }
+  min_confidence: 80
+
+HG:   # Copper futures (COMEX) - long bias
+  long_only: true
+  trend_durations: { W1: "5 Y", D1: "1 Y", H4: "10 M" }
+  rsi: { oversold: 30, overbought: 70, deep_oversold: 22, deep_overbought: 78 }
+  stochastic: { oversold: 22, overbought: 78 }
+  atr: { sl_multiplier: 2.0, tp_multiplier: 4.0 }
+  min_confidence: 80
+
+ALI:  # Aluminum futures (COMEX) - long bias
+  long_only: true
+  trend_durations: { W1: "5 Y", D1: "1 Y", H4: "10 M" }
+  rsi: { oversold: 30, overbought: 70, deep_oversold: 22, deep_overbought: 78 }
+  stochastic: { oversold: 22, overbought: 78 }
+  atr: { sl_multiplier: 2.0, tp_multiplier: 4.0 }
+  min_confidence: 80
+
+# ──────────── Bonds ────────────
+
+ZN:   # 10-Year T-Note futures (CBOT)
+  trend_durations: { W1: "5 Y", D1: "1 Y", H4: "10 M" }
+  rsi: { oversold: 33, overbought: 67, deep_oversold: 25, deep_overbought: 75 }
+  stochastic: { oversold: 25, overbought: 75 }
+  atr: { sl_multiplier: 1.5, tp_multiplier: 3.0 }
+  min_confidence: 80
+
+# ──────────── Crypto ────────────
+
+BTC:
+  rsi:
+    oversold: 28         # crypto has wider swings
+    overbought: 72
+    deep_oversold: 18
+    deep_overbought: 82
+  stochastic:
+    oversold: 18
+    overbought: 82
+  atr:
+    sl_multiplier: 2.5   # high volatility
+    tp_multiplier: 5.0
+  min_confidence: 80
+
+ETH:
+  rsi:
+    oversold: 28
+    overbought: 72
+    deep_oversold: 18
+    deep_overbought: 82
+  stochastic:
+    oversold: 18
+    overbought: 82
+  atr:
+    sl_multiplier: 2.5
+    tp_multiplier: 5.0
+  min_confidence: 80
+
+# ──────────── Commodities ────────────
+
+ZW:   # Wheat futures (CBOT) - seasonal, fundamental-driven
+  timeframes:
+    trend: W1
+    confirmation: D1
+    entry: H4
+  trend_durations:
+    W1: "5 Y"
+    D1: "1 Y"
+    H4: "10 M"
+  rsi:
+    oversold: 25         # deeper extremes for commodities
+    overbought: 75
+    deep_oversold: 15
+    deep_overbought: 85
+  stochastic:
+    oversold: 15         # very deep oversold/overbought
+    overbought: 85
+  atr:
+    sl_multiplier: 2.5   # wider stops for agricultural commodities
+    tp_multiplier: 5.0   # 2:1 R:R with wider range
+  min_confidence: 80
+
+ZC:   # Corn futures (CBOT)
+  timeframes:
+    trend: W1
+    confirmation: D1
+    entry: H4
+  trend_durations:
+    W1: "5 Y"
+    D1: "1 Y"
+    H4: "10 M"
+  rsi:
+    oversold: 30
+    overbought: 70
+    deep_oversold: 20
+    deep_overbought: 80
+  stochastic:
+    oversold: 20
+    overbought: 80
+  atr:
+    sl_multiplier: 2.0
+    tp_multiplier: 4.0
+  min_confidence: 80
+
+ZS:   # Soybeans futures (CBOT)
+  timeframes:
+    trend: W1
+    confirmation: D1
+    entry: H4
+  trend_durations:
+    W1: "5 Y"
+    D1: "1 Y"
+    H4: "10 M"
+  rsi:
+    oversold: 38
+    overbought: 62
+    deep_oversold: 30
+    deep_overbought: 70
+  stochastic:
+    oversold: 30
+    overbought: 70
+  atr:
+    sl_multiplier: 1.8
+    tp_multiplier: 3.6
+  min_confidence: 80
+
+KC:   # Coffee futures (NYBOT) - high volatility, strong trends
+  trend_durations:
+    W1: "5 Y"
+    D1: "1 Y"
+    H4: "10 M"
+  rsi:
+    oversold: 30
+    overbought: 70
+    deep_oversold: 22
+    deep_overbought: 78
+  stochastic:
+    oversold: 22
+    overbought: 78
+  atr:
+    sl_multiplier: 2.0
+    tp_multiplier: 4.0
+  min_confidence: 90
+
+NG:   # Natural Gas futures (NYMEX) - volatile, mean-reverting
+  trend_durations:
+    W1: "5 Y"
+    D1: "1 Y"
+    H4: "10 M"
+  rsi:
+    oversold: 38
+    overbought: 62
+    deep_oversold: 30
+    deep_overbought: 70
+  stochastic:
+    oversold: 30
+    overbought: 70
+  atr:
+    sl_multiplier: 1.8
+    tp_multiplier: 3.6
+  min_confidence: 80
+
+CL:   # Crude Oil futures (NYMEX)
+  trend_durations:
+    W1: "5 Y"
+    D1: "1 Y"
+    H4: "10 M"
+  rsi:
+    oversold: 35
+    overbought: 65
+    deep_oversold: 28
+    deep_overbought: 72
+  stochastic:
+    oversold: 28
+    overbought: 72
+  atr:
+    sl_multiplier: 2.0
+    tp_multiplier: 4.0
+  min_confidence: 80
+
+GC:   # Gold futures (COMEX) - strong uptrend, long bias
+  long_only: true
+  trend_durations: { W1: "5 Y", D1: "1 Y", H4: "10 M" }
+  rsi: { oversold: 35, overbought: 65, deep_oversold: 28, deep_overbought: 72 }
+  stochastic: { oversold: 28, overbought: 72 }
+  atr: { sl_multiplier: 2.0, tp_multiplier: 4.0 }
+  min_confidence: 80
+
+SI:   # Silver futures (COMEX) - long bias
+  long_only: true
+  trend_durations: { W1: "5 Y", D1: "1 Y", H4: "10 M" }
+  rsi: { oversold: 35, overbought: 65, deep_oversold: 28, deep_overbought: 72 }
+  stochastic: { oversold: 28, overbought: 72 }
+  atr: { sl_multiplier: 2.2, tp_multiplier: 4.4 }
+  min_confidence: 80
+
+GOLD:
+  rsi:
+    oversold: 32
+    overbought: 68
+    deep_oversold: 22
+    deep_overbought: 78
+  stochastic:
+    oversold: 22
+    overbought: 78
+  atr:
+    sl_multiplier: 2.0
+    tp_multiplier: 4.0
+  min_confidence: 80
