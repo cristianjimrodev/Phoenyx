@@ -2,6 +2,19 @@
   "balance": 1000.0,
   "equity": 1000.0,
   "currency": "EUR",
-  "next_trade_id": 2,
-  "trades": {}
+  "next_trade_id": 3,
+  "trades": {
+    "2": {
+      "trade_id": 2,
+      "symbol": "EURCAD",
+      "side": "buy",
+      "volume": 10256.41,
+      "open_price": 1.611145,
+      "open_time": 1775040568144,
+      "sl": 1.60615,
+      "tp": 1.62078,
+      "profit": 0.0,
+      "contract_size": 1.0
+    }
+  }
 }
