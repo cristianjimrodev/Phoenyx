@@ -17,6 +17,9 @@ class DashboardState:
         self.latest_prices: dict[str, dict] = {}
         self.account_info: dict = {}
         self.open_positions: list[dict] = []
+        self.trade_history: list[dict] = []
+        self.stats: dict = {}
+        self.equity_curve: list[dict] = []
         self.system_status: dict = {"started": datetime.now().isoformat(), "status": "running"}
         self._connections: set = set()
         self._lock = asyncio.Lock()

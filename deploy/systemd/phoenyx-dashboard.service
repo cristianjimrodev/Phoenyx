@@ -1,0 +1,23 @@
+[Unit]
+Description=Phoenyx web dashboard
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=__USER__
+Group=__USER__
+WorkingDirectory=/home/__USER__/Phoenyx
+
+# Load DASHBOARD_USER / DASHBOARD_PASSWORD (and other app env) from .env.
+EnvironmentFile=-/home/__USER__/Phoenyx/.env
+
+ExecStart=/home/__USER__/Phoenyx/.venv/bin/python run_dashboard.py 0.0.0.0 8080
+
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

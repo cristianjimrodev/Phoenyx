@@ -9,20 +9,16 @@ User=__USER__
 Group=__USER__
 WorkingDirectory=/home/__USER__/ibc
 
-# Virtual display for IB Gateway's Java/Swing UI (runs headless).
-Environment=DISPLAY=:99
-ExecStartPre=/usr/bin/pkill -f "Xvfb :99" || true
-ExecStartPre=/bin/sleep 1
-ExecStartPre=/usr/bin/Xvfb :99 -screen 0 1024x768x16 -nolisten tcp &
-
-# TWS_MAJOR_VRSN must match the installed IB Gateway version.
+# TWS_MAJOR_VRSN must match the installed IB Gateway version (no dot).
 Environment=TWS_MAJOR_VRSN=__IBGW_VERSION__
 Environment=IBC_INI=/home/__USER__/ibc/config.ini
 Environment=TWS_PATH=/home/__USER__/Jts
 Environment=IBC_PATH=/home/__USER__/ibc
 Environment=LOG_PATH=/home/__USER__/ibc/logs
 
-ExecStart=/home/__USER__/ibc/gatewaystart.sh
+# xvfb-run provides the virtual display IB Gateway's Swing UI needs.
+# -inline keeps Gateway's output attached to journald instead of spawning xterm.
+ExecStart=/usr/bin/xvfb-run --auto-servernum --server-args="-screen 0 1024x768x16" /home/__USER__/ibc/gatewaystart.sh -inline
 
 Restart=always
 RestartSec=30

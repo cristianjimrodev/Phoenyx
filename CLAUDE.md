@@ -79,7 +79,47 @@ python test_ib_connection.py
 
 - `config/settings.yaml` — broker connection (ib/xtb/paper), risk parameters (including trailing stop), symbol list, timeframe, logging
 - `config/strategies.yaml` — analysis weights, indicator parameters, pattern settings, news sentiment config
-- `.env` (from `.env.example`) — broker credentials (`BROKER`, `IB_HOST`, `XTB_USER_ID`, etc.)
+- `.env` (from `.env.example`) — broker credentials (`BROKER`, `IB_HOST`, `XTB_USER_ID`, etc.) and optional `DASHBOARD_USER`/`DASHBOARD_PASSWORD` for the web dashboard
+
+## Dashboard (`run_dashboard.py`)
+
+FastAPI web panel served by `src/dashboard/app.py`. Two run modes:
+
+- **Embedded in `src/main.py`** — live WebSocket updates from the continuous loop (when `dashboard.enabled: true` in settings.yaml).
+- **Standalone via `run_dashboard.py`** — long-lived service that polls `data/paper_state.json` and `data/trades.db` every 10s. Designed to run alongside the one-shot `run_daily.py` workflow (which writes those files and exits).
+
+Auth: if both `DASHBOARD_USER` and `DASHBOARD_PASSWORD` env vars are set, all routes require HTTP Basic. Unset for open local access.
+
+Args: `python run_dashboard.py [host] [port]` (defaults `127.0.0.1 8080`). Use `0.0.0.0` to bind publicly.
+
+## Production deployment (GCP)
+
+The `deploy/` folder contains everything to run Phoenyx as a systemd stack on an Ubuntu VM.
+
+**Target architecture**:
+- **IB Gateway** (persistent) logged in via [IBC](https://github.com/IbcAlpha/IBC), kept alive by systemd.
+- **`run_daily.py`** (one-shot) triggered by a systemd timer every 4h.
+- **`run_dashboard.py`** (persistent) exposing the web panel.
+
+**VM**: Ubuntu 22.04 LTS, `e2-small`, 20 GB, `europe-west1-b` (project `phoenyx-bot`). External IP for SSH + dashboard.
+
+**Layout on VM** (home of the OS Login user, e.g. `/home/<user>/`):
+- `ibgateway/` — IB Gateway 10.37 install (flat layout from the official installer).
+- `Jts/ibgateway/1037/` — symlink to `ibgateway/` so IBC finds the binary at its expected path.
+- `ibc/` — IBC 3.20.0. `ibc/config.ini` holds IB credentials; `ibc/gatewaystart.sh` patched so `TWS_MAJOR_VRSN`, `IBC_PATH`, `TWS_PATH`, `LOG_PATH` respect env vars.
+- `Phoenyx/` — the repo, with `.venv/` holding installed requirements.
+
+**Systemd units** (`deploy/systemd/`, placeholders `__USER__` / `__IBGW_VERSION__` are substituted at install time):
+- `phoenyx-ibgateway.service` — starts Gateway under `xvfb-run` (virtual display for the Java UI). Env vars point IBC to our paths. Always restarted.
+- `phoenyx-daily.service` — `Type=oneshot`, runs `python run_daily.py`, requires Gateway.
+- `phoenyx-daily.timer` — fires `phoenyx-daily.service` at 00/04/08/12/16/20 UTC. `Persistent=true` catches up on missed runs after VM downtime.
+- `phoenyx-dashboard.service` — runs `run_dashboard.py 0.0.0.0 8080`; loads `~/Phoenyx/.env` for Basic auth credentials.
+
+**IBC config** (`ibc/config.ini`): set `IbLoginId`, `IbPassword`, `TradingMode=paper`. IBC auto-dismisses the post-login warning dialog. 2FA-enabled accounts cannot use IBC reliably — use a dedicated IB Paper account (no 2FA) for Gateway; the live account stays untouched because trading is simulated via `PaperBroker`.
+
+**Installer**: `deploy/install.sh` — downloads Gateway + IBC, builds the venv, drops systemd units, seeds IBC config from `deploy/ibc/config.ini.template`. Final steps (editing credentials, enabling services) stay manual.
+
+**Firewall**: only port 22 is open by default. Port 8080 must be explicitly opened (`gcloud compute firewall-rules create`) for the dashboard — always pair with Basic auth since the panel shows balance and positions.
 
 ## Key Patterns
 
