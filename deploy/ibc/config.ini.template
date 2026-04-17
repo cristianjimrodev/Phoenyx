@@ -1,0 +1,37 @@
+# IBC configuration template for Phoenyx.
+# Copy to ~/ibc/config.ini and fill in credentials.
+# Full reference: https://github.com/IbcAlpha/IBC/blob/master/resources/config.ini
+
+# ===== IB Account =====
+IbLoginId=YOUR_IB_USERNAME
+IbPassword=YOUR_IB_PASSWORD
+
+# paper | live
+TradingMode=paper
+
+# ===== IB Gateway settings =====
+FIX=no
+IbDir=
+OverrideTwsApiPort=4002
+
+# Accept API connections without dialog
+AcceptIncomingConnectionAction=accept
+AcceptNonBrokerageAccountWarning=yes
+AllowBlindTrading=yes
+
+# ===== Auto restart =====
+# IB forces daily restart. Set a time in server's local TZ (24h format).
+# Gateway will exit cleanly and systemd will restart it.
+ClosedownAt=
+# Alternative: IBC can restart TWS on its own (preferred with systemd).
+IbAutoClosedown=no
+
+# ===== 2FA handling =====
+# If your account uses IBKR Mobile 2FA, automated login will fail without
+# an exemption. For paper accounts 2FA is not required.
+# See: https://github.com/IbcAlpha/IBC/blob/master/userguide.md#second-factor-authentication
+ExistingSessionDetectedAction=primary
+ReloginAfterSecondFactorAuthenticationTimeout=no
+
+# ===== Logging =====
+LogComponents=never

@@ -1,19 +1,31 @@
 {
-  "balance": 1000.0,
-  "equity": 1000.0,
+  "balance": 1080.7216088500006,
+  "equity": 1013.4099949499995,
   "currency": "EUR",
-  "next_trade_id": 3,
+  "next_trade_id": 8,
   "trades": {
-    "2": {
-      "trade_id": 2,
-      "symbol": "EURCAD",
+    "6": {
+      "trade_id": 6,
+      "symbol": "GBPSGD",
+      "side": "sell",
+      "volume": 11231.99,
+      "open_price": 1.71264,
+      "open_time": 1775822046168,
+      "sl": 1.71771,
+      "tp": 1.70252,
+      "profit": -28.36077475000124,
+      "contract_size": 1.0
+    },
+    "7": {
+      "trade_id": 7,
+      "symbol": "USDCAD",
       "side": "buy",
-      "volume": 10256.41,
-      "open_price": 1.611145,
-      "open_time": 1775040568144,
-      "sl": 1.60615,
-      "tp": 1.62078,
-      "profit": 0.0,
+      "volume": 19822.31,
+      "open_price": 1.382855,
+      "open_time": 1775822050324,
+      "sl": 1.37999,
+      "tp": 1.3886,
+      "profit": -38.950839149999894,
       "contract_size": 1.0
     }
   }

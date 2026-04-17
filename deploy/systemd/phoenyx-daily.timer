@@ -1,0 +1,15 @@
+[Unit]
+Description=Trigger Phoenyx daily run every 4 hours
+Requires=phoenyx-daily.service
+
+[Timer]
+# Fire at 00:00, 04:00, 08:00, 12:00, 16:00, 20:00 UTC.
+# Adjust times to match when you want analysis (e.g. shift to market opens).
+OnCalendar=*-*-* 00,04,08,12,16,20:00:00
+# If the VM was down when a trigger was missed, run once on boot.
+Persistent=true
+# Tiny random delay so cron-like bursts don't align with IB restart windows.
+RandomizedDelaySec=30
+
+[Install]
+WantedBy=timers.target

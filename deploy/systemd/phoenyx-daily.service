@@ -1,0 +1,18 @@
+[Unit]
+Description=Phoenyx daily run (one-shot analysis and trading cycle)
+After=phoenyx-ibgateway.service network-online.target
+Requires=phoenyx-ibgateway.service
+
+[Service]
+Type=oneshot
+User=__USER__
+Group=__USER__
+WorkingDirectory=/home/__USER__/Phoenyx
+
+ExecStart=/home/__USER__/Phoenyx/.venv/bin/python run_daily.py
+
+StandardOutput=journal
+StandardError=journal
+
+# If run_daily.py fails, timer will still fire next cycle.
+# No Restart= here because Type=oneshot.
